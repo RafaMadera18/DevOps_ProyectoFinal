@@ -6,8 +6,10 @@ FROM python:3.11
 RUN apt-get update && apt-get install -y \
     gcc \
     libmariadb-dev \
+    libmariadb-dev-compat \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Crear directorio de trabajo
 WORKDIR /app
