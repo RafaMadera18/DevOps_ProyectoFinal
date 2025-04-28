@@ -79,13 +79,15 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'nombre_db'),
-        'USER': os.getenv('DB_USER', 'usuario_db'),
-        'PASSWORD': os.getenv('DB_PASS', 'password_db'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'NAME': 'nombre_de_tu_base_de_datos',
+        'USER': 'usuario_db',
+        'PASSWORD': 'contraseña_correcta',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 
