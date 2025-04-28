@@ -1,6 +1,7 @@
+# Dockerfile
 FROM python:3.13-slim
 
-# 1) Instalar pkg-config y el metapaquete correcto para MySQL
+# 1) Instalar pkg-config y librerías cliente de MySQL
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
        pkg-config \
@@ -8,20 +9,19 @@ RUN apt-get update \
        build-essential \
   && rm -rf /var/lib/apt/lists/*
 
-# 2) Establecer directorio de trabajo
+# 2) Crear directorio de la app
 WORKDIR /app
 
-# 3) Copiar requirements.txt e instalar dependencias
+# 3) Copiar y instalar dependencias Python
 COPY requirements.txt .
 RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
-# 4) Copiar el resto del código y preparar la app
+# 4) Copiar código y entrypoint
 COPY . .
 
-# 5) Ejecutar migraciones y colectar estáticos (opcional)
-RUN python manage.py migrate --noinput
-RUN python manage.py collectstatic --noinput
+# 5) Registrar entrypoint
+ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
 
-EXPOSE 8000
+# 6) Comando por defecto: Gunicorn
 CMD ["gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000"]
