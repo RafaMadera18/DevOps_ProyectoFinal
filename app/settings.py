@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'DevOps',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': 'mysql-test',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
