@@ -1,29 +1,17 @@
-FROM python:3.13-slim
+# Dockerfile
 
-# 1) Instalar pkg-config y librerías cliente de MySQL
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-       pkg-config \
-       default-libmysqlclient-dev \
-       build-essential \
-  && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim
 
-# 2) Crear directorio de la app
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
 WORKDIR /app
 
-# 3) Copiar y instalar dependencias Python
-COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
-
-# 4) Copiar código y entrypoint
 COPY . .
 
-# 5) Dar permisos de ejecución al script entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# 6) Registrar entrypoint
-ENTRYPOINT ["/bin/sh", "/app/entrypoint.sh"]
+EXPOSE 8000
 
-# 7) Comando por defecto: Gunicorn
-CMD ["gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "mi_proyecto.wsgi:application", "--bind", "0.0.0.0:8000"]

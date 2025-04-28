@@ -74,20 +74,19 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME':     os.environ.get('DB_NAME',     'default_db_name'),
-        'USER':     os.environ.get('DB_USER',     'default_user'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'default_pass'),
-        'HOST':     os.environ.get('DB_HOST',     'localhost'),
-        'PORT':     os.environ.get('DB_PORT',     '3306'),
-        # Opciones adicionales, p. ej. conjunto de caracteres:
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
+        'NAME': os.getenv('DB_NAME', 'nombre_db'),
+        'USER': os.getenv('DB_USER', 'usuario_db'),
+        'PASSWORD': os.getenv('DB_PASS', 'password_db'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': '3306',
     }
 }
+
 
 
 # Password validation
