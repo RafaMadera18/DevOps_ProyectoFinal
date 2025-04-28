@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'nombre_db',
         'USER': 'usuario_db',
         'PASSWORD': 'password_db',
-        'HOST': 'mysql',
+        'HOST': 'mysql-test',
         'PORT': '3306',
     }
 }
