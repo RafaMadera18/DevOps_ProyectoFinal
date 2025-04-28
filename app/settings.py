@@ -79,9 +79,9 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nombre_db',
-        'USER': 'usuario_db',
-        'PASSWORD': 'password_db',
+        'NAME': 'DevOps',
+        'USER': 'root',
+        'PASSWORD': 'root',
         'HOST': 'mysql-test',
         'PORT': '3306',
     }
