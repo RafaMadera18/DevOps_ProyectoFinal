@@ -5,9 +5,8 @@ FROM python:3.11
 # Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     gcc \
-    libmysqlclient-dev \
+    libmariadb-dev \
     pkg-config \
-    default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Crear directorio de trabajo
