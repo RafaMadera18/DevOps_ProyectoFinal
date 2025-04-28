@@ -79,9 +79,9 @@ import os
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'nombre_de_tu_base_de_datos',
+        'NAME': 'nombre_db',
         'USER': 'usuario_db',
-        'PASSWORD': 'contraseña_correcta',
+        'PASSWORD': 'password_db',
         'HOST': 'localhost',
         'PORT': '3306',
     }
