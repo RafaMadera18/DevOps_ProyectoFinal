@@ -1,6 +1,8 @@
 # serializers.py
 from rest_framework import serializers
 from .models import Vehiculo
+from .models import Chofer
+
 import re
 
 class VehiculoSerializer(serializers.ModelSerializer):
@@ -21,3 +23,27 @@ class VehiculoSerializer(serializers.ModelSerializer):
         if not re.match(r'^[A-Z0-9\-]+$', value, re.IGNORECASE):
             raise serializers.ValidationError("La placa solo puede contener letras, números y guiones.")
         return value
+    
+class ChoferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chofer
+        fields = '__all__'
+
+    def validate_curp(self, value):
+        if len(value) != 18:
+            raise serializers.ValidationError("El CURP debe tener 18 caracteres.")
+        if not re.match(r'^[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z\d]{2}$', value, re.IGNORECASE):
+            raise serializers.ValidationError("El CURP no tiene un formato válido.")
+        return value
+
+    def validate_numero_licencia(self, value):
+        if len(value) < 5:
+            raise serializers.ValidationError("El número de licencia debe tener al menos 5 caracteres.")
+        if not re.match(r'^[A-Z0-9\-]+$', value, re.IGNORECASE):
+            raise serializers.ValidationError("La licencia solo puede contener letras, números y guiones.")
+        return value
+
+    def validate_salario_mensual(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("El salario mensual debe ser mayor que cero.")
+        return value    
