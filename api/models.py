@@ -17,7 +17,7 @@ class Vehiculo(models.Model):
     
 class Chofer(models.Model):
     nombre_completo = models.CharField(max_length=100)
-    fecha_nacimiento = models.DateTimeField(auto_now_add=True)
+    fecha_nacimiento = models.DateField()
     curp = models.CharField(max_length=100)
     direccion = models.CharField(max_length=100)
     salario_mensual = models.DecimalField(max_digits=10, decimal_places=2)
