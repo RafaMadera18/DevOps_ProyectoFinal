@@ -20,12 +20,18 @@ class ChoferViewSet(viewsets.ModelViewSet):
     queryset = Chofer.objects.all()
     serializer_class = ChoferSerializer
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from django.utils import timezone
+from .models import Asignacion, Chofer, Vehiculo
+from .serializers import AsignacionSerializer
+
 class AsignacionViewSet(viewsets.ModelViewSet):
     queryset = Asignacion.objects.all()
     serializer_class = AsignacionSerializer
 
-    @action(detail=False, methods=['post'], url_path='reasignar')
-    def reasignar(self, request):
+    def create(self, request, *args, **kwargs):
         chofer_id = request.data.get('chofer')
         vehiculo_id = request.data.get('vehiculo')
 
@@ -47,10 +53,14 @@ class AsignacionViewSet(viewsets.ModelViewSet):
         if Asignacion.objects.filter(chofer=chofer, vehiculo=vehiculo, fecha_modificacion__isnull=True).exists():
             return Response({"detalle": "Esta asignación ya está activa."}, status=200)
 
-        # Cerrar asignaciones activas del chofer y del vehículo
-        Asignacion.objects.filter(chofer=chofer, fecha_modificacion__isnull=True).update(fecha_modificacion=hoy)
-        Asignacion.objects.filter(vehiculo=vehiculo, fecha_modificacion__isnull=True).update(fecha_modificacion=hoy)
+        # Validar si el chofer o vehículo ya están en una asignación activa (aunque sea diferente)
+        if Asignacion.objects.filter(chofer=chofer, fecha_modificacion__isnull=True).exists():
+            return Response({"detalle": "Este chofer ya tiene una asignación activa."}, status=400)
+        if Asignacion.objects.filter(vehiculo=vehiculo, fecha_modificacion__isnull=True).exists():
+            return Response({"detalle": "Este vehículo ya tiene una asignación activa."}, status=400)
 
+        # Crear nueva asignación
         nueva = Asignacion.objects.create(chofer=chofer, vehiculo=vehiculo)
         serializer = self.get_serializer(nueva)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
