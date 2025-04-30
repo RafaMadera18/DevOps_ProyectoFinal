@@ -56,22 +56,22 @@ class AsignacionSerializer(serializers.ModelSerializer):
         read_only_fields = ['fecha_modificacion']
 
     def validate(self, data):
-        persona = data.get('persona')
+        chofer = data.get('chofer')
         vehiculo = data.get('vehiculo')
         instance = self.instance  # Será None si es un POST, no None si es PUT/PATCH
 
         # Validar existencia explícitamente (opcional si ForeignKey ya hace esto)
-        if not Chofer.objects.filter(pk=persona.pk).exists():
-            raise serializers.ValidationError({"persona": "El chofer no existe."})
+        if not Chofer.objects.filter(pk=chofer.pk).exists():
+            raise serializers.ValidationError({"chofer": "El chofer no existe."})
         if not Vehiculo.objects.filter(pk=vehiculo.pk).exists():
             raise serializers.ValidationError({"vehiculo": "El vehículo no existe."})
 
         # Validar que no haya otra asignación activa para ese chofer
-        chofer_activo = Asignacion.objects.filter(persona=persona, fecha_modificacion__isnull=True)
+        chofer_activo = Asignacion.objects.filter(chofer=chofer, fecha_modificacion__isnull=True)
         if instance:
             chofer_activo = chofer_activo.exclude(pk=instance.pk)
         if chofer_activo.exists():
-            raise serializers.ValidationError({"persona": "Este chofer ya tiene una asignación activa."})
+            raise serializers.ValidationError({"chofer": "Este chofer ya tiene una asignación activa."})
 
         # Validar que no haya otra asignación activa para ese vehículo
         vehiculo_activo = Asignacion.objects.filter(vehiculo=vehiculo, fecha_modificacion__isnull=True)
