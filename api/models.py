@@ -29,19 +29,10 @@ class Chofer(models.Model):
         return f'{self.nombre_completo} - {self.numero_licencia}'
 
 class Asignacion(models.Model):
-    vehiculo = models.ForeignKey('Vehiculo', on_delete=models.CASCADE)
-    chofer = models.ForeignKey('Chofer', on_delete=models.CASCADE)
+    chofer = models.ForeignKey(Chofer, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
     fecha_asignacion = models.DateField(auto_now_add=True)
-    fecha_modificacion = models.DateField(blank=True, null=True)
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            # Recuperar el objeto original desde la base de datos
-            original = Asignacion.objects.get(pk=self.pk)
-            # Si cambió el chofer o el vehículo, actualiza la fecha de modificación
-            if (self.chofer != original.chofer or self.vehiculo != original.vehiculo):
-                self.fecha_modificacion = timezone.now().date()
-        super().save(*args, **kwargs)
+    fecha_modificacion = models.DateField(null=True, blank=True)
 
     @property
     def activa(self):
