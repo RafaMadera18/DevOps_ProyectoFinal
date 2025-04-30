@@ -41,3 +41,27 @@ class Asignacion(models.Model):
     def __str__(self):
         estado = "Activa" if self.activa else f"Finalizada el {self.fecha_modificacion}"
         return f"{self.chofer} asignado a {self.vehiculo} desde {self.fecha_asignacion} ({estado})"
+
+class Ruta(models.Model):
+    nombre = models.CharField(max_length=100)
+    fecha_recorrido = models.DateField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    exitosa = models.BooleanField(default=True)
+    descripcion_problema = models.TextField(blank=True)
+    comentarios = models.TextField(blank=True)
+
+    # Ubicación de origen (empresa) y destino
+    latitud_origen = models.DecimalField(max_digits=9, decimal_places=6)
+    longitud_origen = models.DecimalField(max_digits=9, decimal_places=6)
+    latitud_destino = models.DecimalField(max_digits=9, decimal_places=6)
+    longitud_destino = models.DecimalField(max_digits=9, decimal_places=6)
+
+    # Relaciones
+    vehiculo = models.ForeignKey('Vehiculo', on_delete=models.PROTECT)
+    chofer = models.ForeignKey('Chofer', on_delete=models.PROTECT)
+
+    class Meta:
+        unique_together = ('vehiculo', 'fecha_recorrido')  # 1 ruta por día por vehículo
+
+    def __str__(self):
+        return f"{self.nombre} - {self.fecha_recorrido}"

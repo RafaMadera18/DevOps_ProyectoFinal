@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Vehiculo
 from .models import Chofer
 from .models import Asignacion
+from .models import Ruta
 
 import re
 
@@ -56,3 +57,33 @@ class AsignacionSerializer(serializers.ModelSerializer):
         model = Asignacion
         fields = ['id', 'chofer', 'vehiculo', 'fecha_asignacion', 'fecha_modificacion', 'activa']
         read_only_fields = ['fecha_modificacion', 'fecha_asignacion', 'activa']
+
+class RutaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ruta
+        fields = '__all__'
+
+    def validate(self, data):
+        vehiculo = data['vehiculo']
+        chofer = data['chofer']
+        fecha = data['fecha_recorrido']
+
+        # Validar que el vehículo no tenga otra ruta en la misma fecha
+        if Ruta.objects.filter(vehiculo=vehiculo, fecha_recorrido=fecha).exists():
+            raise serializers.ValidationError({
+                "detalle": "Este vehículo ya tiene una ruta asignada para esa fecha."
+            })
+
+        # Verificar que exista una asignación activa entre el vehículo y el chofer
+        asignacion_activa = Asignacion.objects.filter(
+            vehiculo=vehiculo,
+            chofer=chofer,
+            fecha_modificacion__isnull=True
+        ).first()
+
+        if not asignacion_activa:
+            raise serializers.ValidationError({
+                "detalle": "No existe una asignación activa entre el chofer y el vehículo."
+            })
+
+        return data
