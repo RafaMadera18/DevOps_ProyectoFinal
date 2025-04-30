@@ -20,13 +20,6 @@ class ChoferViewSet(viewsets.ModelViewSet):
     queryset = Chofer.objects.all()
     serializer_class = ChoferSerializer
 
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import status
-from django.utils import timezone
-from .models import Asignacion, Chofer, Vehiculo
-from .serializers import AsignacionSerializer
-
 class AsignacionViewSet(viewsets.ModelViewSet):
     queryset = Asignacion.objects.all()
     serializer_class = AsignacionSerializer
