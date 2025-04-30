@@ -49,4 +49,4 @@ class Asignacion(models.Model):
 
     def __str__(self):
         estado = "Activa" if self.activa else f"Finalizada el {self.fecha_modificacion}"
-        return f"{self.persona} asignado a {self.vehiculo} desde {self.fecha_asignacion} ({estado})"
+        return f"{self.chofer} asignado a {self.vehiculo} desde {self.fecha_asignacion} ({estado})"
