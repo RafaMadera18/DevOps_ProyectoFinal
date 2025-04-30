@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -28,20 +29,24 @@ class Chofer(models.Model):
         return f'{self.nombre_completo} - {self.numero_licencia}'
 
 class Asignacion(models.Model):
-    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
-    chofer = models.ForeignKey(Chofer, on_delete=models.CASCADE)
-    fecha_asignacion = models.DateTimeField(auto_now_add=True)
-    fecha_modificacion = models.DateTimeField(null=True, blank=True)
-    
+    vehiculo = models.ForeignKey('Vehiculo', on_delete=models.CASCADE)
+    persona = models.ForeignKey('Persona', on_delete=models.CASCADE)
+    fecha_asignacion = models.DateField(auto_now_add=True)
+    fecha_modificacion = models.DateField(blank=True, null=True)
+
     def save(self, *args, **kwargs):
-        if not self.pk:  # Solo validar si es una nueva asignación
-            # Validar que el vehículo no esté ya asignado
-            if Asignacion.objects.filter(vehiculo=self.vehiculo, fecha_modificacion__isnull=True).exists():
-                raise ValueError("Este vehículo ya está asignado a un chofer.")
-            # Validar que el chofer no esté ya asignado
-            if Asignacion.objects.filter(chofer=self.chofer, fecha_modificacion__isnull=True).exists():
-                raise ValueError("Este chofer ya está asignado a un vehículo.")
+        if self.pk:
+            # Recuperar el objeto original desde la base de datos
+            original = Asignacion.objects.get(pk=self.pk)
+            # Si cambió el chofer o el vehículo, actualiza la fecha de modificación
+            if (self.persona != original.persona or self.vehiculo != original.vehiculo):
+                self.fecha_modificacion = timezone.now().date()
         super().save(*args, **kwargs)
 
+    @property
+    def activa(self):
+        return self.fecha_modificacion is None
+
     def __str__(self):
-        return f'{self.chofer.nombre_completo} -> {self.vehiculo.placa}'
+        estado = "Activa" if self.activa else f"Finalizada el {self.fecha_modificacion}"
+        return f"{self.persona} asignado a {self.vehiculo} desde {self.fecha_asignacion} ({estado})"
