@@ -4,6 +4,7 @@ from .models import Vehiculo
 from .models import Chofer
 from .models import Asignacion
 from .models import Ruta
+from .models import Administrador
 
 import re
 
@@ -87,3 +88,17 @@ class RutaSerializer(serializers.ModelSerializer):
             })
 
         return data
+    
+class RegistroAdminSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = Administrador
+        fields = ['id', 'email', 'codigo_invitacion', 'password']
+
+    def create(self, validated_data):
+        validated_data.pop('codigo_invitacion', None)
+        return Administrador.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
