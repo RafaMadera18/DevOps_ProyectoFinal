@@ -95,6 +95,7 @@ class RegistroAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administrador
         fields = ['id', 'email', 'codigo_invitacion', 'password']
+        read_only_fields = ['codigo_invitacion']
 
     def create(self, validated_data):
         validated_data.pop('codigo_invitacion', None)
