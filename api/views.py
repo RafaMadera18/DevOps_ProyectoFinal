@@ -29,24 +29,28 @@ class AsignacionViewSet(viewsets.ModelViewSet):
         chofer_id = request.data.get('chofer')
         vehiculo_id = request.data.get('vehiculo')
 
+        if not chofer_id or not vehiculo_id:
+            return Response({"error": "chofer y vehiculo son requeridos"}, status=400)
+
         try:
             chofer = Chofer.objects.get(pk=chofer_id)
-            vehiculo = Vehiculo.objects.get(pk=vehiculo_id)
         except Chofer.DoesNotExist:
-            return Response({"error": "Chofer no existe"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"chofer": "El chofer no existe."}, status=400)
+        try:
+            vehiculo = Vehiculo.objects.get(pk=vehiculo_id)
         except Vehiculo.DoesNotExist:
-            return Response({"error": "Vehículo no existe"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"vehiculo": "El vehículo no existe."}, status=400)
 
-        # Cerrar asignaciones activas del chofer y vehículo
         hoy = timezone.now().date()
+
+        # Verificar si ya existe una asignación activa idéntica
+        if Asignacion.objects.filter(chofer=chofer, vehiculo=vehiculo, fecha_modificacion__isnull=True).exists():
+            return Response({"detalle": "Esta asignación ya está activa."}, status=200)
+
+        # Cerrar asignaciones activas del chofer y del vehículo
         Asignacion.objects.filter(chofer=chofer, fecha_modificacion__isnull=True).update(fecha_modificacion=hoy)
         Asignacion.objects.filter(vehiculo=vehiculo, fecha_modificacion__isnull=True).update(fecha_modificacion=hoy)
 
-        # Crear nueva asignación
-        nueva = Asignacion.objects.create(
-            chofer=chofer,
-            vehiculo=vehiculo,
-            fecha_asignacion=hoy
-        )
+        nueva = Asignacion.objects.create(chofer=chofer, vehiculo=vehiculo)
         serializer = self.get_serializer(nueva)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
