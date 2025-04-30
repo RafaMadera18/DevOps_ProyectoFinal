@@ -6,12 +6,14 @@ from .models import Vehiculo
 from .models import Chofer
 from .models import Asignacion
 from .models import Ruta
+from .models import Administrador
 
 
 from .serializers import VehiculoSerializer
 from .serializers import ChoferSerializer
 from .serializers import AsignacionSerializer
 from .serializers import RutaSerializer
+from .serializers import RegistroAdminSerializer
 
 class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all()
@@ -60,3 +62,15 @@ class AsignacionViewSet(viewsets.ModelViewSet):
 class RutaViewSet(viewsets.ModelViewSet):
     queryset = Ruta.objects.all()
     serializer_class = RutaSerializer
+
+class AdministradorViewSet(viewsets.ModelViewSet):
+    queryset = Administrador.objects.all()
+    serializer_class = RegistroAdminSerializer
+
+    def create(self, request, *args, **kwargs):
+        codigo_invitacion = request.data.get('codigo_invitacion')
+
+        if codigo_invitacion != 'INVITACION123':  # Cambia por tu lógica real de invitaciones si quieres
+            return Response({'error': 'Código de invitación inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return super().create(request, *args, **kwargs)

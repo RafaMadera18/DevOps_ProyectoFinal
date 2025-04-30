@@ -94,16 +94,11 @@ class RegistroAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Administrador
-        fields = ['email', 'codigo_invitacion', 'password']
-
-    def validate_codigo_invitacion(self, value):
-        if value != 'INVITACION123':  # Puedes cambiar esto por una lógica de códigos en base de datos
-            raise serializers.ValidationError('Código de invitación inválido.')
-        return value
+        fields = ['id', 'email', 'codigo_invitacion', 'password']
 
     def create(self, validated_data):
+        validated_data.pop('codigo_invitacion', None)
         return Administrador.objects.create_user(
             email=validated_data['email'],
-            password=validated_data['password'],
-            codigo_invitacion=validated_data['codigo_invitacion']
+            password=validated_data['password']
         )
