@@ -6,6 +6,7 @@ from api import views
 router = routers.DefaultRouter()
 router.register(r'vehiculos', views.VehiculoViewSet, basename='vehiculos')
 router.register(r'choferes', views.ChoferViewSet, basename='choferes')
+router.register(r'asignaciones', views.AsignacionViewSet, basename='asignaciones')
 
 
 urlpatterns = [

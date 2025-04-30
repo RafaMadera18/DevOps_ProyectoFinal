@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import Vehiculo
 from .models import Chofer
+from .models import Asignacion
 
 import re
 
@@ -47,3 +48,16 @@ class ChoferSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("El salario mensual debe ser mayor que cero.")
         return value    
+
+class AsignacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asignacion
+        fields = '__all__'
+
+    def validate(self, data):
+        if not self.instance:  # Solo si es creación
+            if Asignacion.objects.filter(vehiculo=data['vehiculo'], fecha_modificacion__isnull=True).exists():
+                raise serializers.ValidationError("El vehículo ya tiene una asignación activa.")
+            if Asignacion.objects.filter(chofer=data['chofer'], fecha_modificacion__isnull=True).exists():
+                raise serializers.ValidationError("El chofer ya tiene una asignación activa.")
+        return data
