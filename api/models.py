@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -26,3 +27,17 @@ class Chofer(models.Model):
     
     def __str__(self):
         return f'{self.nombre_completo} - {self.numero_licencia}'
+
+class Asignacion(models.Model):
+    chofer = models.ForeignKey(Chofer, on_delete=models.CASCADE)
+    vehiculo = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    fecha_asignacion = models.DateField(auto_now_add=True)
+    fecha_modificacion = models.DateField(null=True, blank=True)
+
+    @property
+    def activa(self):
+        return self.fecha_modificacion is None
+
+    def __str__(self):
+        estado = "Activa" if self.activa else f"Finalizada el {self.fecha_modificacion}"
+        return f"{self.chofer} asignado a {self.vehiculo} desde {self.fecha_asignacion} ({estado})"

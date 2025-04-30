@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import Vehiculo
 from .models import Chofer
+from .models import Asignacion
 
 import re
 
@@ -47,3 +48,11 @@ class ChoferSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError("El salario mensual debe ser mayor que cero.")
         return value    
+
+class AsignacionSerializer(serializers.ModelSerializer):
+    activa = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Asignacion
+        fields = ['id', 'chofer', 'vehiculo', 'fecha_asignacion', 'fecha_modificacion', 'activa']
+        read_only_fields = ['fecha_modificacion', 'fecha_asignacion', 'activa']
