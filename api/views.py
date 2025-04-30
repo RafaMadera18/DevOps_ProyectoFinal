@@ -1,16 +1,17 @@
 # views.py
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
 from .models import Vehiculo
 from .models import Chofer
 from .models import Asignacion
+from .models import Ruta
 
 
 from .serializers import VehiculoSerializer
 from .serializers import ChoferSerializer
 from .serializers import AsignacionSerializer
+from .serializers import RutaSerializer
 
 class VehiculoViewSet(viewsets.ModelViewSet):
     queryset = Vehiculo.objects.all()
@@ -55,3 +56,7 @@ class AsignacionViewSet(viewsets.ModelViewSet):
         nueva = Asignacion.objects.create(chofer=chofer, vehiculo=vehiculo)
         serializer = self.get_serializer(nueva)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+class RutaViewSet(viewsets.ModelViewSet):
+    queryset = Ruta.objects.all()
+    serializer_class = RutaSerializer
