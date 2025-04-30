@@ -47,8 +47,6 @@ class AsignacionViewSet(viewsets.ModelViewSet):
         except Vehiculo.DoesNotExist:
             return Response({"vehiculo": "El vehículo no existe."}, status=400)
 
-        hoy = timezone.now().date()
-
         # Verificar si ya existe una asignación activa idéntica
         if Asignacion.objects.filter(chofer=chofer, vehiculo=vehiculo, fecha_modificacion__isnull=True).exists():
             return Response({"detalle": "Esta asignación ya está activa."}, status=200)
