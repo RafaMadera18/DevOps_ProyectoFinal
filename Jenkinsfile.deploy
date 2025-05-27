@@ -10,7 +10,7 @@ pipeline {
         stage('Eliminar Django previo') {
             steps {
                 script {
-                    def exists = bat(script: "docker ps -a --format \"{{.Names}}\" | findstr /R /C:\"^%DJANGO_CONTAINER%$\" || exit 0", returnStdout: true).trim()
+                    def exists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^%DJANGO_CONTAINER%$" || exit 0', returnStdout: true).trim()
                     if (exists) {
                         bat "docker rm -f %DJANGO_CONTAINER%"
                     }

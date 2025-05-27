@@ -14,14 +14,12 @@ pipeline {
         stage('Preparar entorno') {
             steps {
                 script {
-                    // Comprobar si la red existe
-                    def netExists = bat(script: "docker network ls --format \"{{.Name}}\" | findstr /R /C:\"^%DOCKER_NETWORK%$\" || exit 0", returnStdout: true).trim()
+                    def netExists = bat(script: 'docker network ls --format "{{.Name}}" | findstr /R /C:"^%DOCKER_NETWORK%$" || exit 0', returnStdout: true).trim()
                     if (!netExists) {
                         bat "docker network create %DOCKER_NETWORK%"
                     }
 
-                    // Comprobar si el contenedor existe
-                    def mysqlExists = bat(script: "docker ps -a --format \"{{.Names}}\" | findstr /R /C:\"^%MYSQL_CONTAINER%$\" || exit 0", returnStdout: true).trim()
+                    def mysqlExists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^%MYSQL_CONTAINER%$" || exit 0', returnStdout: true).trim()
                     if (mysqlExists) {
                         bat "docker rm -f %MYSQL_CONTAINER%"
                     }
@@ -47,20 +45,10 @@ pipeline {
         stage('Esperar MySQL') {
             steps {
                 script {
-                    echo '⌛ Esperando a que MySQL esté listo...'
-                    def retries = 15
-                    def success = false
-                    for (int i = 0; i < retries; i++) {
-                        try {
-                            bat "docker exec %MYSQL_CONTAINER% mysqladmin ping -h localhost -u root -p%MYSQL_ROOT_PASSWORD%"
-                            success = true
-                            break
-                        } catch (err) {
-                            sleep 5
-                        }
-                    }
-                    if (!success) {
-                        error("MySQL no respondió después de varios intentos.")
+                    echo 'Esperando a que MySQL esté listo...'
+                    retry(15) {
+                        sleep 5
+                        bat "docker exec %MYSQL_CONTAINER% mysqladmin ping -h localhost -u root -p%MYSQL_ROOT_PASSWORD%"
                     }
                 }
             }
