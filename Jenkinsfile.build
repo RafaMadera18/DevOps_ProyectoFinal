@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_NETWORK = "miapp-network"
+        MYSQL_CONTAINER = "mysql-test"
+        MYSQL_ROOT_PASSWORD = "123456"
+        MYSQL_DATABASE = "DevOps"
+        MYSQL_USER = "user"
+        MYSQL_PASSWORD = "123456"
+    }
+
+    stages {
+        stage('Preparar entorno') {
+            steps {
+                script {
+                    def netExists = sh(script: "docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK} || true", returnStdout: true).trim()
+                    if (!netExists) {
+                        sh "docker network create ${DOCKER_NETWORK}"
+                    }
+
+                    def mysqlExists = sh(script: "docker ps -a --format '{{.Names}}' | grep -w ${MYSQL_CONTAINER} || true", returnStdout: true).trim()
+                    if (mysqlExists) {
+                        sh "docker rm -f ${MYSQL_CONTAINER}"
+                    }
+                }
+            }
+        }
+
+        stage('Levantar MySQL') {
+            steps {
+                sh """
+                docker run -d --name ${MYSQL_CONTAINER} \\
+                    --network ${DOCKER_NETWORK} \\
+                    -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \\
+                    -e MYSQL_DATABASE=${MYSQL_DATABASE} \\
+                    -e MYSQL_USER=${MYSQL_USER} \\
+                    -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \\
+                    -p 3306:3306 \\
+                    mysql:8.0
+                """
+            }
+        }
+
+        stage('Esperar MySQL') {
+            steps {
+                script {
+                    echo 'Esperando a que MySQL esté listo...'
+                    retry(15) {
+                        sleep 5
+                        sh "docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD}"
+                    }
+                }
+            }
+        }
+
+        stage('Construir imagen de Django') {
+            steps {
+                sh "docker build -t miapp-django ."
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Imagen construida correctamente.'
+            build job: 'DevOpsBackDeploy'
+        }
+        failure {
+            echo '❌ Falló la construcción.'
+        }
+    }
+}
