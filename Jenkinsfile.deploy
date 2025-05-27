@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_NETWORK = "miapp-network"
+        DJANGO_CONTAINER = "miapp-test"
+    }
+
+    stages {
+        stage('Eliminar Django previo') {
+            steps {
+                script {
+                    def exists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^%DJANGO_CONTAINER%$" || exit 0', returnStdout: true).trim()
+                    if (exists) {
+                        bat "docker rm -f %DJANGO_CONTAINER%"
+                    }
+                }
+            }
+        }
+
+        stage('Desplegar Django') {
+            steps {
+                bat """
+                docker run -d --name %DJANGO_CONTAINER% ^
+                    --network %DOCKER_NETWORK% ^
+                    -p 8000:8000 ^
+                    miapp-django
+                """
+            }
+        }
+
+        stage('Migraciones Django') {
+            steps {
+                bat "docker exec %DJANGO_CONTAINER% python manage.py migrate"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '🚀 Aplicación desplegada exitosamente en http://localhost:8000'
+        }
+        failure {
+            echo '❌ Falló el despliegue.'
+        }
+    }
+}
