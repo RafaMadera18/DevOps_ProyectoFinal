@@ -14,14 +14,16 @@ pipeline {
         stage('Preparar entorno') {
             steps {
                 script {
-                    def netExists = sh(script: "docker network ls --format '{{.Name}}' | grep -w ${DOCKER_NETWORK} || true", returnStdout: true).trim()
+                    // Comprobar si la red existe
+                    def netExists = bat(script: "docker network ls --format \"{{.Name}}\" | findstr /R /C:\"^%DOCKER_NETWORK%$\" || exit 0", returnStdout: true).trim()
                     if (!netExists) {
-                        sh "docker network create ${DOCKER_NETWORK}"
+                        bat "docker network create %DOCKER_NETWORK%"
                     }
 
-                    def mysqlExists = sh(script: "docker ps -a --format '{{.Names}}' | grep -w ${MYSQL_CONTAINER} || true", returnStdout: true).trim()
+                    // Comprobar si el contenedor existe
+                    def mysqlExists = bat(script: "docker ps -a --format \"{{.Names}}\" | findstr /R /C:\"^%MYSQL_CONTAINER%$\" || exit 0", returnStdout: true).trim()
                     if (mysqlExists) {
-                        sh "docker rm -f ${MYSQL_CONTAINER}"
+                        bat "docker rm -f %MYSQL_CONTAINER%"
                     }
                 }
             }
@@ -29,14 +31,14 @@ pipeline {
 
         stage('Levantar MySQL') {
             steps {
-                sh """
-                docker run -d --name ${MYSQL_CONTAINER} \\
-                    --network ${DOCKER_NETWORK} \\
-                    -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \\
-                    -e MYSQL_DATABASE=${MYSQL_DATABASE} \\
-                    -e MYSQL_USER=${MYSQL_USER} \\
-                    -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \\
-                    -p 3306:3306 \\
+                bat """
+                docker run -d --name %MYSQL_CONTAINER% ^
+                    --network %DOCKER_NETWORK% ^
+                    -e MYSQL_ROOT_PASSWORD=%MYSQL_ROOT_PASSWORD% ^
+                    -e MYSQL_DATABASE=%MYSQL_DATABASE% ^
+                    -e MYSQL_USER=%MYSQL_USER% ^
+                    -e MYSQL_PASSWORD=%MYSQL_PASSWORD% ^
+                    -p 3306:3306 ^
                     mysql:8.0
                 """
             }
@@ -45,10 +47,20 @@ pipeline {
         stage('Esperar MySQL') {
             steps {
                 script {
-                    echo 'Esperando a que MySQL esté listo...'
-                    retry(15) {
-                        sleep 5
-                        sh "docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD}"
+                    echo '⌛ Esperando a que MySQL esté listo...'
+                    def retries = 15
+                    def success = false
+                    for (int i = 0; i < retries; i++) {
+                        try {
+                            bat "docker exec %MYSQL_CONTAINER% mysqladmin ping -h localhost -u root -p%MYSQL_ROOT_PASSWORD%"
+                            success = true
+                            break
+                        } catch (err) {
+                            sleep 5
+                        }
+                    }
+                    if (!success) {
+                        error("MySQL no respondió después de varios intentos.")
                     }
                 }
             }
@@ -56,7 +68,7 @@ pipeline {
 
         stage('Construir imagen de Django') {
             steps {
-                sh "docker build -t miapp-django ."
+                bat "docker build -t miapp-django ."
             }
         }
     }

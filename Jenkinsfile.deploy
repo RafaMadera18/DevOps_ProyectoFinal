@@ -10,9 +10,9 @@ pipeline {
         stage('Eliminar Django previo') {
             steps {
                 script {
-                    def exists = sh(script: "docker ps -a --format '{{.Names}}' | grep -w ${DJANGO_CONTAINER} || true", returnStdout: true).trim()
+                    def exists = bat(script: "docker ps -a --format \"{{.Names}}\" | findstr /R /C:\"^%DJANGO_CONTAINER%$\" || exit 0", returnStdout: true).trim()
                     if (exists) {
-                        sh "docker rm -f ${DJANGO_CONTAINER}"
+                        bat "docker rm -f %DJANGO_CONTAINER%"
                     }
                 }
             }
@@ -20,10 +20,10 @@ pipeline {
 
         stage('Desplegar Django') {
             steps {
-                sh """
-                docker run -d --name ${DJANGO_CONTAINER} \\
-                    --network ${DOCKER_NETWORK} \\
-                    -p 8000:8000 \\
+                bat """
+                docker run -d --name %DJANGO_CONTAINER% ^
+                    --network %DOCKER_NETWORK% ^
+                    -p 8000:8000 ^
                     miapp-django
                 """
             }
@@ -31,7 +31,7 @@ pipeline {
 
         stage('Migraciones Django') {
             steps {
-                sh "docker exec ${DJANGO_CONTAINER} python manage.py migrate"
+                bat "docker exec %DJANGO_CONTAINER% python manage.py migrate"
             }
         }
     }
