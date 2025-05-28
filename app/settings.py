@@ -120,26 +120,27 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'structured': {
-            'format': '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'fmt': '%(asctime)s %(levelname)s %(name)s %(message)s',
         },
     },
     'handlers': {
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'json',
+            'stream': sys.stdout,
+        },
         'file': {
             'level': LOG_LEVEL,
             'class': 'logging.FileHandler',
             'filename': LOG_PATH,
-            'formatter': 'structured',
+            'formatter': 'json',
         },
-        'console': {
-            'level': LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'structured',
-            'stream': sys.stdout,
-        }
     },
     'root': {
-        'handlers': ['file', 'console'],
+        'handlers': ['console', 'file'],
         'level': LOG_LEVEL,
     },
 }
