@@ -106,3 +106,8 @@ class RegisterAdminView(APIView):
             serializer.save()
             return Response({'message': 'Administrador registrado con éxito.'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class FatalErrorView(APIView):
+    def get(self, request, *args, **kwargs):
+        # Esto provoca una excepción fatal
+        raise RuntimeError("Error fatal de prueba generado intencionalmente.")
