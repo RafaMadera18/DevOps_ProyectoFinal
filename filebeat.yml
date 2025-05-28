@@ -1,0 +1,12 @@
+filebeat.inputs:
+  - type: filestream
+    enabled: true
+    paths:
+      - /app/logs/app.log
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+
+
+processors:
+  - add_docker_metadata: ~

@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-
 # Crear directorio de trabajo
 WORKDIR /app
 

@@ -18,4 +18,5 @@ urlpatterns = [
     path('auth/register/', views.RegisterAdminView.as_view(), name='register'),
     path('auth/login/', views.AdminTokenObtainPairView.as_view(), name='login'),
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('fatal-error/', views.FatalErrorView.as_view(), name='fatal-error'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
