@@ -114,7 +114,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 import sys
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
-LOG_PATH = os.path.join(BASE_DIR, 'logs', 'app.log')
 
 LOGGING = {
     'version': 1,
@@ -135,7 +134,8 @@ LOGGING = {
         'file': {
             'level': LOG_LEVEL,
             'class': 'logging.FileHandler',
-            'filename': LOG_PATH,
+            'filename': os.path.join(BASE_DIR, 'logs', 'app.log'),
+            'mode': 'a',
             'formatter': 'json',
         },
     },
@@ -143,7 +143,18 @@ LOGGING = {
         'handlers': ['console', 'file'],
         'level': LOG_LEVEL,
     },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+    },
 }
+
+# Asegúrate de crear el directorio logs si no existe
+log_dir = os.path.join(BASE_DIR, 'logs')
+os.makedirs(log_dir, exist_ok=True)
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -13,9 +13,6 @@ RUN apt-get update && apt-get install -y \
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Crear carpeta de logs (IMPORTANTE)
-RUN mkdir -p /app/logs
-
 # Copiar archivos
 COPY . .
 
