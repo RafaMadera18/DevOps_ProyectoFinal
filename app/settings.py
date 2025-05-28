@@ -63,6 +63,7 @@ SIMPLE_JWT = {
 
 
 MIDDLEWARE = [
+    'app.utils.middleware.APILoggingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -110,7 +111,38 @@ DATABASES = {
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+import sys
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+LOG_PATH = os.path.join(BASE_DIR, 'logs', 'app.log')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'structured': {
+            'format': '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "name": "%(name)s", "message": "%(message)s"}'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': LOG_LEVEL,
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH,
+            'formatter': 'structured',
+        },
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'structured',
+            'stream': sys.stdout,
+        }
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': LOG_LEVEL,
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
