@@ -5,6 +5,4 @@ Proyecto final de la asignatura DevOps e Integración Continua. Sistema de Gesti
 https://trello.com/b/EldJENxm
 
 ## Integrantes
-- Daniel de Jesús Peraza Batun
-- Luis Mario Juarez chin
 - Rafael Leonardo Madera López
