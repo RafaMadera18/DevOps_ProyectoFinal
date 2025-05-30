@@ -9,27 +9,6 @@ pipeline {
     }
 
     stages {
-        stage('Eliminar contenedores previos') {
-            steps {
-                script {
-                    def djangoExists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^%DJANGO_CONTAINER%$" || exit 0', returnStdout: true).trim()
-                    if (djangoExists) {
-                        bat "docker rm -f %DJANGO_CONTAINER%"
-                    }
-
-                    def filebeatExists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^%FILEBEAT_CONTAINER%$" || exit 0', returnStdout: true).trim()
-                    if (filebeatExists) {
-                        bat "docker rm -f %FILEBEAT_CONTAINER%"
-                    }
-
-                    def elasticExists = bat(script: 'docker ps -a --format "{{.Names}}" | findstr /R /C:"^elasticsearch$" || exit 0', returnStdout: true).trim()
-                    if (elasticExists) {
-                        bat "docker rm -f elasticsearch"
-                    }
-                }
-            }
-        }
-
         stage('Levantar Elasticsearch') {
             steps {
                 bat """
